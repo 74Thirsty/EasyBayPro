@@ -1,5 +1,5 @@
 # EasyBayPro
-![Sheen Banner](https://raw.githubusercontent.com/74Thirsty/74Thirsty/main/assets/banner.svg)
+![Sheen Banner](https://raw.githubusercontent.com/74Thirsty/74Thirsty/main/assets/explode.svg)
 
 A fast, reliable toolkit for power sellers who want to create, manage, and optimize large batches of eBay listings.
 Designed for automation-first workflows: CSV/JSON imports, templated listings, image hosting, scheduled publishes, variations support, and analytics — all backed by eBay API integrations and sane retry/forensic logging.
