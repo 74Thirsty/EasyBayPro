@@ -1,4 +1,4 @@
-![Sheen Banner](https://raw.githubusercontent.com/74Thirsty/74Thirsty/main/assets/explode.svg)
+![Sheen Banner](https://raw.githubusercontent.com/74Thirsty/74Thirsty/main/assets/easybay.svg)
 
 ---
 
