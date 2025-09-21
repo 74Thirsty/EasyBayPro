@@ -1,101 +1,113 @@
-# EasyBayPro
 ![Sheen Banner](https://raw.githubusercontent.com/74Thirsty/74Thirsty/main/assets/explode.svg)
 
-A fast, reliable toolkit for power sellers who want to create, manage, and optimize large batches of eBay listings.
-Designed for automation-first workflows: CSV/JSON imports, templated listings, image hosting, scheduled publishes, variations support, and analytics — all backed by eBay API integrations and sane retry/forensic logging.
+---
 
-⚠️ Important: This tool interacts with the eBay API. You must comply with eBay’s API terms of service and applicable listing laws in your jurisdiction. Use only with accounts you control or have written permission to manage.
+# eBay PowerLister 🚀
 
-⸻
+**A fast, reliable toolkit for power sellers to create, manage, and optimize large batches of eBay listings.**
+Designed for automation-first workflows: CSV/JSON imports, templated listings, image hosting, scheduled publishes, variations support, analytics — all backed by robust eBay API integrations and forensic logging.
 
-Table of contents
-	1.	Features
-	2.	Quick demo
-	3.	Installation
-	4.	Configuration
-	5.	Usage
-	6.	Templates & CSV/JSON schema
-	7.	Scheduling & Execution
-	8.	Monitoring & Logs
-	9.	Testing / Sandbox
-	10.	Security & Best Practices
-	11.	Troubleshooting
-	12.	Roadmap
-	13.	Contributing
-	14.	License
+⚠️ **Important:** PowerLister interacts with the eBay API. You must comply with eBay’s API terms of service and applicable listing laws in your jurisdiction. Use only with accounts you control or have explicit written permission to manage.
 
-⸻
+---
 
-Features
-	•	Bulk create, update, relist, and end eBay listings via CSV/JSON batches.
-	•	Template engine for titles, descriptions, shipping, and item specifics (Jinja-like syntax).
-	•	Variation & inventory management (multi-SKU, multi-variation support).
-	•	Image hosting / CDN integration and automatic image optimization.
-	•	Price strategies: fixed, calculated, dynamic markdowns, market-backed suggestions.
-	•	Scheduler for timed publishes, relists and delist windows.
-	•	Multi-account support (separate credentials for each eBay account).
-	•	Robust retry/exponential backoff with per-step forensic logging.
-	•	Dry-run mode and preview export (what would be posted).
-	•	Analytics: listing performance, impressions, sell-through rate (optional eBay analytics integration).
-	•	CLI + REST API + Docker-ready.
+## 📑 Table of Contents
 
-⸻
+1. [Features](#features)
+2. [Quick Demo](#quick-demo)
+3. [Installation](#installation)
+4. [Configuration](#configuration)
+5. [Usage](#usage)
+6. [Templates & CSV/JSON Schema](#templates--csvjson-schema)
+7. [Scheduling & Execution](#scheduling--execution)
+8. [Monitoring & Logs](#monitoring--logs)
+9. [Testing / Sandbox](#testing--sandbox)
+10. [Security & Best Practices](#security--best-practices)
+11. [Troubleshooting](#troubleshooting)
+12. [Roadmap](#roadmap)
+13. [Contributing](#contributing)
+14. [License](#license)
 
-Quick demo
+---
 
-Create and publish a batch from a CSV:
+## ✨ Features
 
-# run a dry-run to validate a CSV
+* Bulk create, update, relist, and end eBay listings via CSV/JSON batches.
+* Powerful template engine for titles, descriptions, shipping, and item specifics (Jinja-style syntax).
+* Variation & inventory management (multi-SKU, multi-variation).
+* Image hosting / CDN integration with auto-optimization.
+* Pricing strategies: fixed, calculated, markdown, or market-suggested.
+* Scheduler for timed publishes, relists, and delists.
+* Multi-account support with isolated credentials.
+* Robust retry/exponential backoff + forensic logging of every API call.
+* Dry-run mode and preview export (“what would be posted”).
+* Analytics: impressions, sell-through rates, performance tracking.
+* CLI + REST API + Docker-ready.
+
+---
+
+## ⚡ Quick Demo
+
+Import & dry-run validate a CSV:
+
+```bash
 powerlister import --file products.csv --account my-ebay-account --dry-run
+```
 
-# publish validated batch
+Publish a validated batch:
+
+```bash
 powerlister publish --batch-id 20250921-001 --account my-ebay-account
+```
 
 Preview a single templated listing:
 
+```bash
 powerlister preview --template vintage-watch.tpl --vars '{"title":"Rolex 1970","price":1299.99}'
+```
 
+---
 
-⸻
+## 🔧 Installation
 
-Installation
+**Requirements**
 
-Requirements
-	•	Python 3.10+ (recommended 3.11)
-	•	PostgreSQL or SQLite (for small single-user setups)
-	•	Redis (optional, for job queue & scheduler)
-	•	Docker / docker-compose (recommended for production)
+* Python 3.10+ (3.11 recommended)
+* PostgreSQL or SQLite
+* Redis (optional, for scheduler)
+* Docker / docker-compose (recommended for production)
 
-From pip (quick)
+From **PyPI**:
 
+```bash
 pip install ebay-powerlister
+```
 
-From source
+From **source**:
 
+```bash
 git clone https://github.com/you/ebay-powerlister.git
 cd ebay-powerlister
 python -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
 python setup.py install
+```
 
-Docker
+With **Docker**:
 
-docker-compose.yml (example service names: powerlister-app, db, redis)
-
+```bash
 docker compose up -d
-# run migrations
 docker compose exec powerlister-app powerlister migrate
+```
 
+---
 
-⸻
+## ⚙️ Configuration
 
-Configuration
+Environment variables or `.env`:
 
-Place configuration in environment variables or a .env file (example below). Secrets should be stored in a secret manager (Vault / AWS Secrets Manager / Keyring) in production.
-
-.env example:
-
+```ini
 POWERLISTER_ENV=production
 DATABASE_URL=postgresql://user:pass@db:5432/powerlister
 REDIS_URL=redis://redis:6379/0
@@ -105,149 +117,149 @@ EBAY_REDIRECT_URI=https://yourapp.example.com/oauth/callback
 DEFAULT_ACCOUNT=my-ebay-account
 IMAGE_CDN_URL=https://cdn.example.com
 LOG_LEVEL=INFO
+```
 
-OAuth: Follow eBay developer docs to register your application and obtain Client ID/Secret. Store those securely.
+Secrets should be kept in a **secret manager** (Vault, AWS Secrets Manager, Keyring).
 
-⸻
+---
 
-Usage
+## 🖥 Usage
 
-CLI
+**CLI Commands**
 
-powerlister CLI supports subcommands:
-	•	powerlister init — initialize DB + sample templates
-	•	powerlister import --file FILE --account ACCOUNT [--batch-name NAME] [--dry-run] — import CSV/JSON into a batch
-	•	powerlister validate --batch-id BATCH — validate a batch against schema & templates
-	•	powerlister publish --batch-id BATCH --account ACCOUNT [--schedule "2025-10-01T12:00:00Z"] — publish batch or schedule it
-	•	powerlister preview --template NAME --vars JSON — render a single listing preview
-	•	powerlister status --batch-id BATCH — get status + logs for batch
-	•	powerlister analytics --account ACCOUNT --range 30d — fetch recent metrics
+* `powerlister init` — initialize DB & templates
+* `powerlister import` — import CSV/JSON into batch
+* `powerlister validate` — validate batch schema/templates
+* `powerlister publish` — publish or schedule batch
+* `powerlister preview` — render single listing preview
+* `powerlister status` — get status + logs for batch
+* `powerlister analytics` — fetch metrics
 
-Example: publish a CSV immediately:
+**REST API** (JWT/API key auth)
 
-powerlister import --file listings.csv --account my-ebay-account
-powerlister validate --batch-id 20250921-002
-powerlister publish --batch-id 20250921-002 --account my-ebay-account
+* `POST /api/v1/batches` — upload batch (CSV/JSON)
+* `POST /api/v1/batches/:id/publish` — publish/schedule
+* `GET /api/v1/batches/:id` — batch status & logs
+* `GET /api/v1/previews` — preview templated listing
 
-REST API
+Docs available at `/docs` (dev mode).
 
-The service exposes a small API (auth via JWT / API key):
-	•	POST /api/v1/batches — upload batch (CSV/JSON)
-	•	POST /api/v1/batches/:id/publish — publish or schedule
-	•	GET /api/v1/batches/:id — status & logs
-	•	GET /api/v1/previews — get templated preview
+---
 
-Auth and docs (OpenAPI) are exposed at /docs when running in dev mode.
+## 📄 Templates & Schema
 
-⸻
+**CSV Required Columns**
 
-Templates & CSV/JSON schema
+* `sku` (required)
+* `title` or template vars
+* `description` or template ref
+* `price`, `currency`
+* `condition`
+* `category_id`
+* `image_urls`
+* `stock_qty`
+* Profiles: `shipping_profile`, `return_profile`, `payment_profile`
 
-Template example (title + description):
+**Example Template (Jinja-like):**
 
+```tpl
 {{ brand }} {{ model }} - {{ condition }}
-{{#if features}}
+{% if features %}
 Features:
 {% for f in features %}
 - {{ f }}
 {% endfor %}
 {% endif %}
-
 Ships from: {{ ship_from }}
+```
 
-Minimal CSV columns
-	•	sku (required)
-	•	title or template variables to render title
-	•	description (or point to template)
-	•	price (number)
-	•	currency (default USD)
-	•	condition (New/Used/Like New etc)
-	•	category_id (eBay numeric category)
-	•	image_urls (pipe | separated)
-	•	variation_sku / variation_name / variation_options — for variations
-	•	stock_qty
-	•	shipping_profile / return_profile / payment_profile — reference to configured profiles
+---
 
-JSON schema and a sample CSV template are included in docs/schema/.
+## ⏱ Scheduling & Execution
 
-⸻
+* Scheduler uses Redis + RQ (or Celery).
+* Jobs are durable and survive restarts.
+* Execution pipeline runs in idempotent steps:
 
-Scheduling & Execution
-	•	The scheduler uses Redis + RQ (or Celery) to queue publish jobs.
-	•	Scheduled jobs persist in DB and are resilient to restarts.
-	•	Execution engine performs the publish in small idempotent steps:
-	1.	upload images (if needed)
-	2.	create draft listing
-	3.	attach variations / inventory
-	4.	publish/list
-	•	Each step is logged; failures trigger retry with exponential backoff. You can configure retry counts in CONFIG.RETRIES.
+  1. Upload images
+  2. Create draft listing
+  3. Attach variations / inventory
+  4. Publish
+* Per-step logging and retry with backoff.
 
-⸻
+---
 
-Monitoring & Logs
-	•	Forensic logging: every API call to eBay is logged with request/response metadata (no secret tokens). Logs can be exported for auditing.
-	•	Log files: logs/powerlister.log (rotating), and per-batch logs in logs/batches/.
-	•	Metrics: Prometheus exporter included (metrics endpoint /metrics).
-	•	Alerts: Configure webhook/email for critical failures (publish failed, rate-limited, auth expired).
+## 📊 Monitoring & Logs
 
-⸻
+* **Forensic logging**: full request/response (without secrets).
+* Logs: `logs/powerlister.log`, plus per-batch logs.
+* **Metrics**: Prometheus exporter at `/metrics`.
+* **Alerts**: webhook/email hooks on failures.
 
-Testing / Sandbox
-	•	eBay Sandbox support is implemented. Use separate sandbox credentials and POWERLISTER_ENV=sandbox.
-	•	Dry-run mode simulates every step and outputs the API payloads that would be sent to eBay. Always validate batches in dry-run before publishing live.
+---
 
-⸻
+## 🧪 Testing / Sandbox
 
-Security & Best Practices
-	•	Never commit EBAY_CLIENT_SECRET or access tokens to Git. Use secret managers.
-	•	Rate limits: obey eBay API rate limiting. The default client implements adaptive throttling; do not disable it.
-	•	Revoke and rotate OAuth tokens periodically (and on role changes).
-	•	Only operate listings for accounts you control. Automating other users’ accounts without explicit written consent may violate law and eBay policies.
+* Full eBay **Sandbox** support.
+* Dry-run mode simulates every step.
+* Always validate before live publish.
 
-⸻
+---
 
-Troubleshooting
-	•	401 Unauthorized — re-run OAuth flow, check redirect URLs and valid client ID/secret.
-	•	429 Too Many Requests — inspect throttling metrics; reduce concurrency or increase backoff.
-	•	Image upload issues — confirm CDN credentials and that source URLs are reachable.
-	•	Schema errors during import — run powerlister validate to get exact CSV row errors.
+## 🔒 Security & Best Practices
 
-If you need a forensic-style error trace for a failed batch:
+* Store **secrets in a vault**, never Git.
+* Respect **eBay API rate limits**.
+* Rotate OAuth tokens regularly.
+* Only manage accounts you legally control.
 
-powerlister status --batch-id 20250921-002 --verbose
-# then inspect logs:
-less logs/batches/20250921-002.log
+---
 
+## 🛠 Troubleshooting
 
-⸻
+* `401 Unauthorized` → re-run OAuth, check credentials.
+* `429 Too Many Requests` → reduce concurrency.
+* Image errors → check CDN credentials and source URLs.
+* Schema errors → run `powerlister validate`.
 
-Roadmap
-	•	Improved AI-driven price optimization (market scraping + ML suggestions).
-	•	Smart relisting strategies (auto-reprice on low views).
-	•	Built-in shipping label purchasing integrations.
-	•	Multi-currency and VAT support.
-	•	Marketplace expansion: Etsy / Shopify connectors.
+---
 
-⸻
+## 🗺 Roadmap
 
-Contributing
+* AI-driven price optimization.
+* Auto-relist with smart repricing.
+* Shipping label integrations.
+* Multi-currency + VAT support.
+* Marketplace expansion: Etsy, Shopify.
 
-Contributions welcome — please follow these guidelines:
-	1.	Open an issue describing the feature or bug.
-	2.	Create a branch feat/… or fix/….
-	3.	Write tests and update docs.
-	4.	Submit a PR referencing the issue.
+---
 
-Code style: Black for Python, ESLint for JS, and pre-commit hooks are enabled.
+## 🤝 Contributing
 
-⸻
+1. Open an issue.
+2. Branch `feat/...` or `fix/...`.
+3. Write tests + update docs.
+4. Submit PR.
 
-License
+Coding standards: **Black**, **ESLint**, pre-commit hooks.
 
-MIT License — see LICENSE in the repo.
+---
 
-⸻
+## 📜 License
 
-A final note
+**Private License — Not for Redistribution**
+This software is proprietary and provided under a private license.
+You may not copy, distribute, sublicense, or sell this software without explicit written consent from the author.
 
-This tool is powerful and intended for responsible sellers. Automating listings can scale mistakes as quickly as profits — validate every batch in dry-run mode and keep thorough logs. If you want, I can generate a starter products.csv template, a sample listing template, or an example Docker Compose file for production deployment. Which one should I produce first?
+For commercial licensing inquiries, contact the repository owner.
+
+---
+
+## ⚠️ Final Note
+
+PowerLister is powerful. Automating listings can scale mistakes as quickly as profits. **Always dry-run, always validate, always log.**
+
+---
+
+👉 Do you want me to also draft the actual **LICENSE file** text for this “Private License — Not for Redistribution,” so it’s enforceable like a custom EULA?
+
