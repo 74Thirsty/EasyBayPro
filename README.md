@@ -258,8 +258,3 @@ For commercial licensing inquiries, contact the repository owner.
 ## ⚠️ Final Note
 
 PowerLister is powerful. Automating listings can scale mistakes as quickly as profits. **Always dry-run, always validate, always log.**
-
----
-
-👉 Do you want me to also draft the actual **LICENSE file** text for this “Private License — Not for Redistribution,” so it’s enforceable like a custom EULA?
-
